@@ -11,7 +11,7 @@ log_diagrams_enabled = True
 
 def main(n):
 
-    stats = init_stats()
+    stats = init_stats(n)
 
     # Load previously calculated results with n-1 edges
     previous = load_results(n-1)
@@ -26,7 +26,7 @@ def main(n):
     write_results(t, n, stats)
 
     # Print summary of findings
-    finalize_stats(stats)
+    finalize_stats(stats, n)
     print_final_report(load_results(n), stats, n)
 
 
@@ -158,7 +158,6 @@ def print_final_report(results, stats, n):
         log_diagram(t, force=True)
     print('\n')
     print("\n\n====== SUMMARY OF RESULTS ======\n")
-    print(f'N = {n}\n')
     print(f'Found {len(results)} results:')
     print(', '.join([f'#{t.packed}' for t in results]))
     print('\nStats:')
@@ -168,22 +167,35 @@ def print_final_report(results, stats, n):
 
 
 # Get an object to collect statistics in
-def init_stats():
+def init_stats(n:int):
     class _Stats(object):
         def __getattr__(self, attr):
             setattr(self, attr, 0)
             return 0
     stats = _Stats()
+    stats.n = n
+    stats.log_messages_enabled = log_messages_enabled
+    stats.log_diagrams_enabled = log_diagrams_enabled
     stats.start_time = datetime.now()
     return stats
 
 
 # Crunch some final numbers to analyze runtime.
-def finalize_stats(stats):
+def finalize_stats(stats, n:int):
     stats.end_time = datetime.now()
     stats.elapsed_time = stats.end_time - stats.start_time
     stats.average_time_per_input = stats.elapsed_time / stats.inputs_processed
     stats.estimated_time_for_next_run = stats.average_time_per_input * stats.results_written_to_file
+    write_stats(stats, n)
+
+
+# Write statistics out to a file
+def write_stats(stats, n:int):
+    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+    filename = f'statistics/statistics_{n}_edges.{timestamp}'
+    with open(filename, 'w') as f:
+        for k, v in stats.__dict__.items():
+            f.write(f'{(k+":").ljust(40)}{str(v)}\n')
 
 
 if __name__ == "__main__":
