@@ -9,9 +9,9 @@ log_messages_enabled = False
 log_diagrams_enabled = False
 
 
-def main():
+def main(starting_n):
 
-    for n in range(2,32):
+    for n in range(starting_n,32):
         print(f'\nCalculating for n={n}...')
 
         stats = init_stats(n)
@@ -33,6 +33,9 @@ def main():
 
         # Write out the results for n
         write_results(t, n, stats)
+
+        # Sort the results in the file
+        sort_results(n, stats)
 
         # Print summary of findings
         finalize_stats(stats, n)
@@ -57,7 +60,6 @@ def load_results(n:int):
             for line in f.readlines()])
 
 
-
 # Write a results file with a list of IncompleteTesseract objects
 # that all have n edges.
 def write_results(tesseracts, n:int, stats):
@@ -68,6 +70,12 @@ def write_results(tesseracts, n:int, stats):
             f.write(f'{t.packed}\n')
             f.flush()
             stats.results_written_to_file += 1
+
+
+# Read the results file for n edges and write it back sorted.
+def sort_results(n:int, stats):
+    results = load_results(n)
+    write_results(sorted(results), n, stats)
 
 
 # Take a collection of IncompleteTesseract objects with n edges and generate
@@ -211,14 +219,13 @@ def write_stats(stats, n:int):
 
 
 if __name__ == "__main__":
-    #try:
-    #    n = int(sys.argv[1])
-    #except Exception as e:
-    #    print("ERROR: Please give N as argument. (2 <= N <= 32)")
-    #    exit(1)
+    try:
+        starting_n = int(sys.argv[1])
+    except Exception as e:
+        print("ERROR: Please give starting value N as argument. (2 <= N <= 32)")
+        exit(1)
 
-    #main(n)
+    main(starting_n)
 
-    main()
 
 
