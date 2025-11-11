@@ -78,9 +78,9 @@ class IncompleteTesseract:
     # transformed by the given matrix.
     ###
     def transform(self, transformation_matrix):
-        return IncompleteTesseract(self._pack_edges(
+        return IncompleteTesseract(self._pack_edges((
             self._transform_edge(edge, transformation_matrix)
-                for edge in self.edges(unit=False)), unit=False)
+                for edge in self.edges(unit=False)), unit=False))
 
     ###
     # Return true iff the given edge is included in this IncompleteTesseract.
@@ -97,7 +97,7 @@ class IncompleteTesseract:
     ###
     def with_edge(self, edge, unit=False):
         return IncompleteTesseract(self._pack_edges(
-            self.edges(unit=unit).union({_make_unordered_edge(edge)}),
+            self.edges(unit=unit).union({self._make_unordered_edge(edge)}),
             unit=unit))
 
     ###
