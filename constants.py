@@ -3,10 +3,10 @@ import numpy as np
 import itertools
 
 ######################################################
-##  Diagram of a tessaract for reference.           ##
+##  Diagram of a tesseract for reference.           ##
 ##                                                  ##
-##  Left cube is the ana cell of the tessaract.     ##
-##  Right cube is the kata cell of the tessaract.   ##
+##  Left cube is the ana cell of the tesseract.     ##
+##  Right cube is the kata cell of the tesseract.   ##
 ##  Eight edges are hidden in the W dimension.      ##
 ##                                                  ##
 ##           E---------F          M---------N       ##
@@ -76,7 +76,7 @@ EDGE_FN = np.array([VERTEX_F, VERTEX_N])
 EDGE_GO = np.array([VERTEX_G, VERTEX_O])
 EDGE_HP = np.array([VERTEX_H, VERTEX_P])
 
-# Edges of the unit tessaract, in an order that I find
+# Edges of the unit tesseract, in an order that I find
 # aesthetically pleasing when represented as above.
 ALL_EDGES_ORDERED_UT = np.array([
     EDGE_AC, EDGE_CD, EDGE_BD, EDGE_AB,
@@ -89,7 +89,7 @@ ALL_EDGES_ORDERED_UT = np.array([
     EDGE_MO, EDGE_OP, EDGE_NP, EDGE_MN,
 ])
 
-# Edges of the centered tessaract, in the same order.
+# Edges of the centered tesseract, in the same order.
 ALL_EDGES_ORDERED_CT = (ALL_EDGES_ORDERED_UT * 2) - 1
 
 
@@ -100,16 +100,16 @@ IDENTITY_MATRIX = np.array([[ 1, 0, 0, 0],
                             [ 0, 0, 0, 1]])
 
 ###
-# List of matrices describing the symmetries of a tessaract.
+# List of matrices describing the symmetries of a tesseract.
 #
 # This list has 384 items. Each item is a 4x4 matrix describing
 # an element of the hyperoctahedral group of order 4. This includes
 # the identity transformation plus all rotations and reflections that
-# preserve the symmetry of a tessaract.
+# preserve the symmetry of a tesseract.
 #
 # Multiplying any one of these matrices by some vertex of the centered
-# tessaract will always return another vertex of the centered tessaract.
-# The same is NOT true for the unit tessaract, because rotations and
+# tesseract will always return another vertex of the centered tesseract.
+# The same is NOT true for the unit tesseract, because rotations and
 # reflections are centered at the origin.
 ###
 TRANSFORMATION_MATRICES = np.array([
@@ -129,9 +129,9 @@ TRANSFORMATION_MATRICES = np.array([
 ###
 
 
-# Convert between "unit" tessaract and "centered" tessaract.
-# The unit tessaract has coordinates spanning (0,0,0,0) to (1,1,1,1), while
-# The centered tessaract has coordinates spanning (-1,-1,-1,-1) to (1,1,1,1).
+# Convert between "unit" tesseract and "centered" tesseract.
+# The unit tesseract has coordinates spanning (0,0,0,0) to (1,1,1,1), while
+# The centered tesseract has coordinates spanning (-1,-1,-1,-1) to (1,1,1,1).
 # Input `a` can be any numpy array.
 def ut_to_ct(a):
     return (a * 2) - 1

@@ -29,17 +29,17 @@ ALL_EDGES_ORDERED_UT = constants.ALL_EDGES_ORDERED_UT
 ALL_EDGES_ORDERED_CT = constants.ALL_EDGES_ORDERED_CT
 
 ###
-# List of all 384 symmetrical transformations of a tessaract,
+# List of all 384 symmetrical transformations of a tesseract,
 # represented as 4x4 matrices.
 ###
 TRANSFORMATION_MATRICES = constants.TRANSFORMATION_MATRICES
 
 @dataclass(order=True, frozen=True)
-class IncompleteTessaract:
+class IncompleteTesseract:
 
     # Packed bit representation.
-    # Every 32-bit integer represents an IncompleteTessaract,
-    # because a tessaract has 32 edges.
+    # Every 32-bit integer represents an IncompleteTesseract,
+    # because a tesseract has 32 edges.
     packed: int
     
     
@@ -61,8 +61,8 @@ class IncompleteTessaract:
             if (self.packed >> i) & 0x1]
 
     ###
-    # Get a list of all symmetrical transformations of this IncompleteTessaract.
-    # The returned list will contain exactly 384 new IncompleteTessaract objects,
+    # Get a list of all symmetrical transformations of this IncompleteTesseract.
+    # The returned list will contain exactly 384 new IncompleteTesseract objects,
     # and includes the identity transformation.
     ###
     def transformations(self):
@@ -70,16 +70,16 @@ class IncompleteTessaract:
             for transformation_matrix in TRANSFORMATION_MATRICES]
 
     ###
-    # Get another IncompleteTessaract that is identical to this one
+    # Get another IncompleteTesseract that is identical to this one
     # transformed by the given matrix.
     ###
     def transform(self, transformation_matrix):
-        return IncompleteTessaract(self._pack_edges(
+        return IncompleteTesseract(self._pack_edges(
             self._transform_edge(edge, transformation_matrix)
                 for edge in self.edges(unit=False) ))
 
     ###
-    # Return true iff the given edge is included in this IncompleteTessaract.
+    # Return true iff the given edge is included in this IncompleteTesseract.
     ###
     def has_edge(self, edge, unit=False):
         return (self._make_unordered_edge(edge) in
@@ -93,7 +93,7 @@ class IncompleteTessaract:
     
     ###
     # Return a string which, when printed, renders a diagram of
-    # this IncompleteTessaract as an ASCII drawing.
+    # this IncompleteTesseract as an ASCII drawing.
     ###
     def ascii_drawing(self,
             indent_spaces           = 5,
@@ -127,7 +127,7 @@ class IncompleteTessaract:
             [lvf,lvb,lhf,lhb,lsf,lsb,ldg,vxf,vxb,spc]}) == 1)
 
         # List of bools, where the nth bool is true iff the nth edge
-        # is present in this IncompleteTessaract.
+        # is present in this IncompleteTesseract.
         has = [self.has_edge(e, unit=False)
                 for e in ALL_EDGES_ORDERED_CT]
         
