@@ -22,59 +22,55 @@ import itertools
 
 # Vertices
 ################### [x,y,z,w]
-VERTEX_A = np.array([0,0,0,0])
-VERTEX_B = np.array([1,0,0,0])
-VERTEX_C = np.array([0,1,0,0])
-VERTEX_D = np.array([1,1,0,0])
-VERTEX_E = np.array([0,0,1,0])
-VERTEX_F = np.array([1,0,1,0])
-VERTEX_G = np.array([0,1,1,0])
-VERTEX_H = np.array([1,1,1,0])
-VERTEX_I = np.array([0,0,0,1])
-VERTEX_J = np.array([1,0,0,1])
-VERTEX_K = np.array([0,1,0,1])
-VERTEX_L = np.array([1,1,0,1])
-VERTEX_M = np.array([0,0,1,1])
-VERTEX_N = np.array([1,0,1,1])
-VERTEX_O = np.array([0,1,1,1])
-VERTEX_P = np.array([1,1,1,1])
+VERTEX_A = (0,0,0,0)
+VERTEX_B = (1,0,0,0)
+VERTEX_C = (0,1,0,0)
+VERTEX_D = (1,1,0,0)
+VERTEX_E = (0,0,1,0)
+VERTEX_F = (1,0,1,0)
+VERTEX_G = (0,1,1,0)
+VERTEX_H = (1,1,1,0)
+VERTEX_I = (0,0,0,1)
+VERTEX_J = (1,0,0,1)
+VERTEX_K = (0,1,0,1)
+VERTEX_L = (1,1,0,1)
+VERTEX_M = (0,0,1,1)
+VERTEX_N = (1,0,1,1)
+VERTEX_O = (0,1,1,1)
+VERTEX_P = (1,1,1,1)
 
-# Edges aligned to the X dimension
-EDGE_AB = np.array([VERTEX_A, VERTEX_B]) 
-EDGE_CD = np.array([VERTEX_C, VERTEX_D])
-EDGE_EF = np.array([VERTEX_E, VERTEX_F])
-EDGE_GH = np.array([VERTEX_G, VERTEX_H])
-EDGE_IJ = np.array([VERTEX_I, VERTEX_J])
-EDGE_KL = np.array([VERTEX_K, VERTEX_L])
-EDGE_MN = np.array([VERTEX_M, VERTEX_N])
-EDGE_OP = np.array([VERTEX_O, VERTEX_P])
-# Edges aligned to the Y dimension
-EDGE_AC = np.array([VERTEX_A, VERTEX_C])
-EDGE_BD = np.array([VERTEX_B, VERTEX_D])
-EDGE_EG = np.array([VERTEX_E, VERTEX_G])
-EDGE_FH = np.array([VERTEX_F, VERTEX_H])
-EDGE_IK = np.array([VERTEX_I, VERTEX_K])
-EDGE_JL = np.array([VERTEX_J, VERTEX_L])
-EDGE_MO = np.array([VERTEX_M, VERTEX_O])
-EDGE_NP = np.array([VERTEX_N, VERTEX_P])
-# Edges aligned to the Z dimension
-EDGE_AE = np.array([VERTEX_A, VERTEX_E])
-EDGE_BF = np.array([VERTEX_B, VERTEX_F])
-EDGE_CG = np.array([VERTEX_C, VERTEX_G])
-EDGE_DH = np.array([VERTEX_D, VERTEX_H])
-EDGE_IM = np.array([VERTEX_I, VERTEX_M])
-EDGE_JN = np.array([VERTEX_J, VERTEX_N])
-EDGE_KO = np.array([VERTEX_K, VERTEX_O])
-EDGE_LP = np.array([VERTEX_L, VERTEX_P])
-# Edges aligned to the W dimension
-EDGE_AI = np.array([VERTEX_A, VERTEX_I])
-EDGE_BJ = np.array([VERTEX_B, VERTEX_J])
-EDGE_CK = np.array([VERTEX_C, VERTEX_K])
-EDGE_DL = np.array([VERTEX_D, VERTEX_L])
-EDGE_EM = np.array([VERTEX_E, VERTEX_M])
-EDGE_FN = np.array([VERTEX_F, VERTEX_N])
-EDGE_GO = np.array([VERTEX_G, VERTEX_O])
-EDGE_HP = np.array([VERTEX_H, VERTEX_P])
+EDGE_AB = ( VERTEX_A, VERTEX_B ) 
+EDGE_CD = ( VERTEX_C, VERTEX_D )
+EDGE_EF = ( VERTEX_E, VERTEX_F )
+EDGE_GH = ( VERTEX_G, VERTEX_H )
+EDGE_IJ = ( VERTEX_I, VERTEX_J )
+EDGE_KL = ( VERTEX_K, VERTEX_L )
+EDGE_MN = ( VERTEX_M, VERTEX_N )
+EDGE_OP = ( VERTEX_O, VERTEX_P )
+EDGE_AC = ( VERTEX_A, VERTEX_C )
+EDGE_BD = ( VERTEX_B, VERTEX_D )
+EDGE_EG = ( VERTEX_E, VERTEX_G )
+EDGE_FH = ( VERTEX_F, VERTEX_H )
+EDGE_IK = ( VERTEX_I, VERTEX_K )
+EDGE_JL = ( VERTEX_J, VERTEX_L )
+EDGE_MO = ( VERTEX_M, VERTEX_O )
+EDGE_NP = ( VERTEX_N, VERTEX_P )
+EDGE_AE = ( VERTEX_A, VERTEX_E )
+EDGE_BF = ( VERTEX_B, VERTEX_F )
+EDGE_CG = ( VERTEX_C, VERTEX_G )
+EDGE_DH = ( VERTEX_D, VERTEX_H )
+EDGE_IM = ( VERTEX_I, VERTEX_M )
+EDGE_JN = ( VERTEX_J, VERTEX_N )
+EDGE_KO = ( VERTEX_K, VERTEX_O )
+EDGE_LP = ( VERTEX_L, VERTEX_P )
+EDGE_AI = ( VERTEX_A, VERTEX_I )
+EDGE_BJ = ( VERTEX_B, VERTEX_J )
+EDGE_CK = ( VERTEX_C, VERTEX_K )
+EDGE_DL = ( VERTEX_D, VERTEX_L )
+EDGE_EM = ( VERTEX_E, VERTEX_M )
+EDGE_FN = ( VERTEX_F, VERTEX_N )
+EDGE_GO = ( VERTEX_G, VERTEX_O )
+EDGE_HP = ( VERTEX_H, VERTEX_P )
 
 # Edges of the unit tesseract, in an order that I find
 # aesthetically pleasing when represented as above.
@@ -92,6 +88,11 @@ ALL_EDGES_ORDERED_UT = np.array([
 # Edges of the centered tesseract, in the same order.
 ALL_EDGES_ORDERED_CT = (ALL_EDGES_ORDERED_UT * 2) - 1
 
+# Make them immutable/hashable
+ALL_EDGES_ORDERED_CT = tuple([frozenset((tuple(e[0]), tuple(e[1])))
+        for e in ALL_EDGES_ORDERED_CT])
+ALL_EDGES_ORDERED_UT = tuple([frozenset((tuple(e[0]), tuple(e[1])))
+        for e in ALL_EDGES_ORDERED_UT])
 
 # Identity matrix
 IDENTITY_MATRIX = np.array([[ 1, 0, 0, 0],
@@ -122,6 +123,13 @@ TRANSFORMATION_MATRICES = np.array([
                 for b in (-1,1)
                 for c in (-1,1)
                 for d in (-1,1) ])])
+# Make it immutable/hashable
+TRANSFORMATION_MATRICES = frozenset(
+       (tuple(mat[0]),
+        tuple(mat[1]),
+        tuple(mat[2]),
+        tuple(mat[3]))
+        for mat in TRANSFORMATION_MATRICES)
 
 
 ###

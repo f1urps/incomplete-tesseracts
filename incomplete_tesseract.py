@@ -59,27 +59,29 @@ class IncompleteTesseract:
     def edges(self, unit=False):
         all_edges = (ALL_EDGES_ORDERED_UT if unit
                 else ALL_EDGES_ORDERED_CT)
-        return frozenset([self._make_unordered_edge(all_edges[i])
+        return frozenset(all_edges[i]
             for i in range(0,32)
-            if (self.packed >> i) & 0x1])
+            if (self.packed >> i) & 0x1)
 
     ###
-    # Get a list of all symmetrical transformations of this IncompleteTesseract.
-    # The returned list will contain exactly 384 new IncompleteTesseract objects,
-    # and includes the identity transformation.
+    # Get all symmetrical transformations of this IncompleteTesseract.
     ###
-    @functools.cache
     def transformations(self):
-        return [self.transform(transformation_matrix)
-            for transformation_matrix in TRANSFORMATION_MATRICES]
+        seen = set()
+        for transformation_matrix in TRANSFORMATION_MATRICES:
+            tt = self.transform(transformation_matrix)
+            if tt not in seen:
+                seen.add(tt)
+                yield tt
 
     ###
     # Get another IncompleteTesseract that is identical to this one
     # transformed by the given matrix.
     ###
+    @functools.cache
     def transform(self, transformation_matrix):
-        return IncompleteTesseract(self._pack_edges((
-            self._transform_edge(edge, transformation_matrix)
+        return IncompleteTesseract(_pack_edges((
+            _transform_edge(edge, transformation_matrix)
                 for edge in self.edges(unit=False)), unit=False))
 
     ###
@@ -87,17 +89,19 @@ class IncompleteTesseract:
     #
     # The given edge argument can be any iterable containing exactly two four-length iterables.
     ###
+    @functools.cache
     def has_edge(self, edge, unit=False):
-        return (self._make_unordered_edge(edge) in self.edges(unit=unit))
+        return (_make_unordered_edge(edge) in self.edges(unit=unit))
 
     ###
     # Get another IncompleteTesseract that is identical to this one
     # but with the given edge added. If the given edge is already included,
     # the new object will just be identical.
     ###
+    @functools.cache
     def with_edge(self, edge, unit=False):
-        return IncompleteTesseract(self._pack_edges(
-            self.edges(unit=unit).union({self._make_unordered_edge(edge)}),
+        return IncompleteTesseract(_pack_edges(
+            self.edges(unit=unit).union({_make_unordered_edge(edge)}),
             unit=unit))
 
     ###
@@ -274,43 +278,46 @@ class IncompleteTesseract:
 
 
 
-    ### Hidden Methods ###
+### Functions ###
 
-    # Transform a single edge by the given matrix.
-    # This consists of transforming each vertex individually.
-    def _transform_edge(self, edge, transformation_matrix):
-        assert len(transformation_matrix) == 4
-        assert all(len(row) == 4 for row in transformation_matrix)
-        assert len(edge) == 2
-        assert all(len(v) == 4 for v in edge)
-        edge = np.array(list(edge))
-        return np.array([
-            transformation_matrix.dot(edge[0]),
-            transformation_matrix.dot(edge[1]) ])
+# Transform a single edge by the given matrix.
+# This consists of transforming each vertex individually.
+@functools.cache
+def _transform_edge(edge, mat):
+    assert len(mat) == 4
+    assert all(len(row) == 4 for row in mat)
+    assert len(edge) == 2
+    assert all(len(v) == 4 for v in edge)
+    mat = np.array(mat)
+    edge = np.array(list(edge))
+    return np.array((
+        mat.dot(edge[0]),
+        mat.dot(edge[1]) ))
 
-    # Take a list of edges and return a packed bit representation.
-    # This may throw ValueError if any of the included_edges are not valid.
-    def _pack_edges(self, included_edges, unit=False):
-        all_edges = (ALL_EDGES_ORDERED_UT if unit
-                else ALL_EDGES_ORDERED_CT)
-        all_edges_immutable = [self._make_unordered_edge(e)
-                for e in all_edges]
-        included_edges_immutable = (self._make_unordered_edge(e)
-                for e in included_edges)
-        bit_indices = (all_edges_immutable.index(e)
-                for e in included_edges_immutable)
-        bit_masks = (0x1 << i
-                for i in bit_indices)
-        return functools.reduce(
-                (lambda x,y: x | y), bit_masks, 0x0)
+# Take a list of edges and return a packed bit representation.
+# This may throw ValueError if any of the included_edges are not valid.
+@functools.cache
+def _pack_edges(included_edges, unit=False):
+    all_edges = (ALL_EDGES_ORDERED_UT if unit
+            else ALL_EDGES_ORDERED_CT)
+    all_edges_immutable = [_make_unordered_edge(e)
+            for e in all_edges]
+    included_edges_immutable = (_make_unordered_edge(e)
+            for e in included_edges)
+    bit_indices = (all_edges_immutable.index(e)
+            for e in included_edges_immutable)
+    bit_masks = (0x1 << i
+            for i in bit_indices)
+    return functools.reduce(
+            (lambda x,y: x | y), bit_masks, 0x0)
 
-    # Take an edge and convert it to a frozenset of tuples.
-    # The edge given may be represented as any iterable of length 2,
-    # containing two sub-iterables of length 4.
-    def _make_unordered_edge(self, e):
-        assert len(e) == 2
-        assert all(len(v) == 4 for v in e)
-        return frozenset([tuple(v) for v in e])
-        
+# Take an edge and convert it to a frozenset of tuples.
+# The edge given may be represented as any iterable of length 2,
+# containing two sub-iterables of length 4.
+def _make_unordered_edge(e):
+    assert len(e) == 2
+    assert all(len(v) == 4 for v in e)
+    return frozenset(tuple(v) for v in e)
+    
 
 

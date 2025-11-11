@@ -6,7 +6,7 @@ from datetime import datetime
 
 
 log_messages_enabled = True
-log_diagrams_enabled = True
+log_diagrams_enabled = False
 
 
 def main(n):
@@ -93,22 +93,16 @@ def remove_symmetrical_copies(tesseracts, stats):
         log(f'Checking #{t.packed} for symmetrical uniqueness.')
         stats.uniqueness_checks += 1
 
-        tt = min(t.transformations())
+        if all(tt not in results_seen for tt in t.transformations()):
+            results_seen.add(t)
 
-        log(f'Converted #{t.packed} to minimum transformation #{tt.packed}.')
-        log_diagram(tt)
-
-        if tt not in results_seen:
-            results_seen.add(tt)
-
-            log(f'#{tt.packed} is new!')
-            log(f'results_seen={[t.packed for t in results_seen]}')
+            log(f'#{t.packed} is new!')
             stats.uniqueness_checks_accepted += 1
 
-            yield tt
+            yield t
 
         else:
-            log(f'#{tt.packed} has been seen before.')
+            log(f'#{t.packed} has been seen before.')
             stats.uniqueness_checks_rejected += 1
 
 
@@ -192,7 +186,7 @@ def finalize_stats(stats, n:int):
 # Write statistics out to a file
 def write_stats(stats, n:int):
     timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-    filename = f'statistics/statistics_{n}_edges.{timestamp}'
+    filename = f'statistics/{n}.{timestamp}'
     with open(filename, 'w') as f:
         for k, v in stats.__dict__.items():
             f.write(f'{(k+":").ljust(40)}{str(v)}\n')
