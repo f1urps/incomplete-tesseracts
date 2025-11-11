@@ -1,0 +1,18 @@
+n:                                      5
+log_messages_enabled:                   False
+log_diagrams_enabled:                   False
+start_time:                             2025-11-11 08:19:08.161263
+inputs_processed:                       7
+extensions_created:                     78
+uniqueness_checks:                      78
+uniqueness_checks_accepted:             21
+dimensionality_checks:                  21
+dimensionality_checks_rejected:         9
+uniqueness_checks_rejected:             57
+dimensionality_checks_accepted:         12
+minimum_transformation_conversions:     12
+results_written_to_file:                12
+end_time:                               2025-11-11 08:19:11.356461
+elapsed_time:                           0:00:03.195198
+average_time_per_input:                 0:00:00.456457
+estimated_time_for_next_run:            0:00:05.477484
