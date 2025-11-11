@@ -2,6 +2,7 @@
 import numpy as np
 import constants
 import functools
+import itertools
 from dataclasses import dataclass
 
 ### CONSTANTS ###
@@ -46,25 +47,28 @@ class IncompleteTesseract:
     ### Instance Methods ###
 
     ###
-    # Get a list of the edges that compose this IncompleteTesseract,
-    # as coordinates of the centered tesseract.
+    # Get all the edges that compose this IncompleteTesseract.
     #
-    # The returned list will be a subset of ALL_EDGES_ORDERED_CT,
+    # The returned set will be a subset of ALL_EDGES_ORDERED_CT,
     # where the nth edge is included iff the nth least significant
     # bit of the packed representation is a 1.
+    #
+    # Each edge will be returned in immutable form, as a frozenset containing two 4-tuples.
     ###
+    @functools.cache
     def edges(self, unit=False):
         all_edges = (ALL_EDGES_ORDERED_UT if unit
                 else ALL_EDGES_ORDERED_CT)
-        return [all_edges[i]
+        return frozenset([self._make_unordered_edge(all_edges[i])
             for i in range(0,32)
-            if (self.packed >> i) & 0x1]
+            if (self.packed >> i) & 0x1])
 
     ###
     # Get a list of all symmetrical transformations of this IncompleteTesseract.
     # The returned list will contain exactly 384 new IncompleteTesseract objects,
     # and includes the identity transformation.
     ###
+    @functools.cache
     def transformations(self):
         return [self.transform(transformation_matrix)
             for transformation_matrix in TRANSFORMATION_MATRICES]
@@ -76,14 +80,37 @@ class IncompleteTesseract:
     def transform(self, transformation_matrix):
         return IncompleteTesseract(self._pack_edges(
             self._transform_edge(edge, transformation_matrix)
-                for edge in self.edges(unit=False) ))
+                for edge in self.edges(unit=False)), unit=False)
 
     ###
     # Return true iff the given edge is included in this IncompleteTesseract.
+    #
+    # The given edge argument can be any iterable containing exactly two four-length iterables.
     ###
     def has_edge(self, edge, unit=False):
-        return (self._make_unordered_edge(edge) in
-            map(self._make_unordered_edge, self.edges(unit=unit)))
+        return (self._make_unordered_edge(edge) in self.edges(unit=unit))
+
+    ###
+    # Get another IncompleteTesseract that is identical to this one
+    # but with the given edge added. If the given edge is already included,
+    # the new object will just be identical.
+    ###
+    def with_edge(self, edge, unit=False):
+        return IncompleteTesseract(self._pack_edges(
+            self.edges(unit=unit).union({_make_unordered_edge(edge)}),
+            unit=unit))
+
+    ###
+    # Get a graph representation of this IncompleteTesseract.
+    # Returns a tuple (v, e) where v is a frozenset of vertices,
+    # each vertex being a 4-tuple of coordinates, and e is a frozenset
+    # of edges, each edge itself being a frozenset of two vertices.
+    ###
+    @functools.cache
+    def graph(self, unit=False):
+        e = self.edges(unit=unit)
+        v = frozenset(itertools.chain.from_iterable(e))
+        return v, e
 
     ###
     # str method
@@ -95,6 +122,7 @@ class IncompleteTesseract:
     # Return a string which, when printed, renders a diagram of
     # this IncompleteTesseract as an ASCII drawing.
     ###
+    @functools.cache
     def ascii_drawing(self,
             indent_spaces           = 5,
             gap_width_spaces        = 6,
@@ -254,7 +282,8 @@ class IncompleteTesseract:
         assert len(transformation_matrix) == 4
         assert all(len(row) == 4 for row in transformation_matrix)
         assert len(edge) == 2
-        assert all(len(vertex) == 4 for vertex in edge)
+        assert all(len(v) == 4 for v in edge)
+        edge = np.array(list(edge))
         return np.array([
             transformation_matrix.dot(edge[0]),
             transformation_matrix.dot(edge[1]) ])
@@ -264,24 +293,24 @@ class IncompleteTesseract:
     def _pack_edges(self, included_edges, unit=False):
         all_edges = (ALL_EDGES_ORDERED_UT if unit
                 else ALL_EDGES_ORDERED_CT)
-        all_edges_comparable = [self._make_unordered_edge(e)
+        all_edges_immutable = [self._make_unordered_edge(e)
                 for e in all_edges]
-        included_edges_comparable = (self._make_unordered_edge(e)
+        included_edges_immutable = (self._make_unordered_edge(e)
                 for e in included_edges)
-        bit_indices = (all_edges_comparable.index(e)
-                for e in included_edges_comparable)
+        bit_indices = (all_edges_immutable.index(e)
+                for e in included_edges_immutable)
         bit_masks = (0x1 << i
                 for i in bit_indices)
         return functools.reduce(
                 (lambda x,y: x | y), bit_masks, 0x0)
 
-    # Take an edge represented as a numpy array and convert it
-    # to a frozenset of tuples.
+    # Take an edge and convert it to a frozenset of tuples.
+    # The edge given may be represented as any iterable of length 2,
+    # containing two sub-iterables of length 4.
     def _make_unordered_edge(self, e):
         assert len(e) == 2
-        assert len(e[0]) == 4
-        assert len(e[1]) == 4
-        return frozenset([ tuple(e[0]), tuple(e[1]) ])
+        assert all(len(v) == 4 for v in e)
+        return frozenset([tuple(v) for v in e])
         
 
 
