@@ -75,6 +75,7 @@ def write_results(tesseracts, n:int, stats):
 # Read the results file for n edges and write it back sorted.
 def sort_results(n:int, stats):
     results = load_results(n)
+    stats.results_written_to_file = 0
     write_results(sorted(results), n, stats)
 
 
