@@ -1,0 +1,20 @@
+n:                                      6
+log_messages_enabled:                   False
+log_diagrams_enabled:                   False
+start_time:                             2025-11-11 12:17:13.495745
+inputs_processed:                       12
+max_memory_usage_percent:               1.3160554306186207
+max_memory_usage_bytes:                 101609472
+extensions_created:                     160
+uniqueness_checks:                      160
+uniqueness_checks_accepted:             58
+dimensionality_checks:                  58
+dimensionality_checks_accepted:         58
+minimum_transformation_conversions:     58
+results_written_to_file:                58
+uniqueness_checks_rejected:             102
+end_time:                               2025-11-11 12:17:21.636100
+elapsed_time:                           8.14 seconds
+average_time_per_input:                 0.68 seconds
+estimated_time_for_next_run:            39.35 seconds
+max_memory_usage:                       101.6 MB

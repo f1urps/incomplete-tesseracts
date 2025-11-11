@@ -1,0 +1,21 @@
+n:                                      5
+log_messages_enabled:                   False
+log_diagrams_enabled:                   False
+cache_maxsize:                          50000
+max_memory_usage:                       55.8 MB
+max_memory_usage_percent:               0.7233079268373555
+start_time:                             2025-11-11 12:22:06.574363
+end_time:                               2025-11-11 12:22:09.902159
+inputs_processed:                       7
+extensions_created:                     78
+uniqueness_checks:                      78
+uniqueness_checks_accepted:             21
+dimensionality_checks:                  21
+dimensionality_checks_rejected:         9
+uniqueness_checks_rejected:             57
+dimensionality_checks_accepted:         12
+minimum_transformation_conversions:     12
+results_written_to_file:                12
+elapsed_time:                           0:00:03.327796
+average_time_per_input:                 0:00:00.475399
+estimated_time_for_next_run:            0:00:05.704788

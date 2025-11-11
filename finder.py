@@ -1,8 +1,11 @@
 #! /usr/bin/python3
 
 from incomplete_tesseract import IncompleteTesseract
+from incomplete_tesseract import CACHE_MAXSIZE
 import sys
 from datetime import datetime
+import psutil
+import humanize
 
 
 log_messages_enabled = False
@@ -25,7 +28,8 @@ def main(starting_n):
         # Filter for uniqueness by symmetry
         t = remove_symmetrical_copies(t, stats)
 
-        if n == 5:
+        # Filter out non-4d shapes, once we get past small n
+        if n >= 5:
             t = remove_non_4d(t, stats)
 
         # Convert each to their minimum representation
@@ -67,9 +71,11 @@ def write_results(tesseracts, n:int, stats):
     with open(filename, 'w') as f:
         for t in tesseracts:
             log(f'Writing result #{t.packed} to "{filename}".')
+            stats.results_written_to_file += 1
+            collect_memory_usage_stats(stats)
+
             f.write(f'{t.packed}\n')
             f.flush()
-            stats.results_written_to_file += 1
 
 
 # Read the results file for n edges and write it back sorted.
@@ -87,6 +93,7 @@ def generate_extensions(tesseracts, stats):
         log(f'Generating extensions of input tesseract #{t.packed}.')
         log_diagram(t)
         stats.inputs_processed += 1
+        collect_memory_usage_stats(stats)
 
         v, e = t.graph(unit=True)
 
@@ -99,6 +106,7 @@ def generate_extensions(tesseracts, stats):
                     f'{list(new_edge)} to create #{extension.packed}.')
                 log_diagram(extension)
                 stats.extensions_created += 1
+                collect_memory_usage_stats(stats)
 
                 yield extension
 
@@ -110,6 +118,7 @@ def remove_symmetrical_copies(tesseracts, stats):
     for t in tesseracts:
         log(f'Checking #{t.packed} for symmetrical uniqueness.')
         stats.uniqueness_checks += 1
+        collect_memory_usage_stats(stats)
 
         if all(tt not in results_seen for tt in t.transformations()):
             results_seen.add(t)
@@ -132,6 +141,7 @@ def remove_non_4d(tesseracts, stats):
     for t in tesseracts:
         log(f'Checking for proper 4-dimensionality of #{t.packed}.')
         stats.dimensionality_checks += 1
+        collect_memory_usage_stats(stats)
 
         if all(frozenset(tt.edges(unit=True)).intersection(W_EDGES)
                 for tt in frozenset(t.transformations())):
@@ -149,6 +159,7 @@ def convert_to_minimum(tesseracts, stats):
     for t in tesseracts:
         log(f'Calculating minimum transformation for #{t.packed}.')
         stats.minimum_transformation_conversions += 1
+        collect_memory_usage_stats(stats)
 
         yield min(t.transformations())
 
@@ -183,7 +194,7 @@ def print_final_report(results, stats, n):
     print(', '.join([f'#{t.packed}' for t in results]))
     print('\nStats:')
     for k, v in stats.__dict__.items():
-        print(f'  {(k+":").ljust(35)}{str(v)}')
+        print(f'  {(k+":").ljust(40)}{str(v)}')
     print()
 
 
@@ -197,7 +208,10 @@ def init_stats(n:int):
     stats.n = n
     stats.log_messages_enabled = log_messages_enabled
     stats.log_diagrams_enabled = log_diagrams_enabled
+    stats.cache_maxsize = CACHE_MAXSIZE
+    collect_memory_usage_stats(stats)
     stats.start_time = datetime.now()
+    stats.end_time = 0
     return stats
 
 
@@ -206,7 +220,10 @@ def finalize_stats(stats, n:int):
     stats.end_time = datetime.now()
     stats.elapsed_time = stats.end_time - stats.start_time
     stats.average_time_per_input = stats.elapsed_time / stats.inputs_processed
-    stats.estimated_time_for_next_run = stats.average_time_per_input * stats.results_written_to_file
+    stats.estimated_time_for_next_run = (
+            stats.average_time_per_input * stats.results_written_to_file)
+    stats.max_memory_usage = humanize.naturalsize(
+            stats.max_memory_usage)
     write_stats(stats, n)
 
 
@@ -217,6 +234,17 @@ def write_stats(stats, n:int):
     with open(filename, 'w') as f:
         for k, v in stats.__dict__.items():
             f.write(f'{(k+":").ljust(40)}{str(v)}\n')
+
+
+# Keep track of maximum memory usage stats
+def collect_memory_usage_stats(stats):
+    p = psutil.Process()
+    current_memory_usage_bytes = p.memory_info().rss
+    current_memory_usage_percent = p.memory_percent()
+    stats.max_memory_usage = max(
+            stats.max_memory_usage, current_memory_usage_bytes)
+    stats.max_memory_usage_percent = max(
+            stats.max_memory_usage_percent, current_memory_usage_percent)
 
 
 if __name__ == "__main__":

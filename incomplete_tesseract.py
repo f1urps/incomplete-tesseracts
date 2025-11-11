@@ -13,6 +13,9 @@ MIN = 0x00000000
 # Maximum value of a packed representation.
 MAX = 0xffffffff
 
+# Maximum number of entries to store in caches
+CACHE_MAXSIZE = 500_000
+
 ###
 # A list of all 32 edges in a full tesseract, arranged in
 # preferential order.
@@ -55,7 +58,7 @@ class IncompleteTesseract:
     #
     # Each edge will be returned in immutable form, as a frozenset containing two 4-tuples.
     ###
-    @functools.cache
+    @functools.lru_cache(maxsize=CACHE_MAXSIZE)
     def edges(self, unit=False):
         all_edges = (ALL_EDGES_ORDERED_UT if unit
                 else ALL_EDGES_ORDERED_CT)
@@ -78,7 +81,7 @@ class IncompleteTesseract:
     # Get another IncompleteTesseract that is identical to this one
     # transformed by the given matrix.
     ###
-    @functools.cache
+    @functools.lru_cache(maxsize=CACHE_MAXSIZE)
     def transform(self, transformation_matrix):
         return IncompleteTesseract(_pack_edges((
             _transform_edge(edge, transformation_matrix)
@@ -89,7 +92,7 @@ class IncompleteTesseract:
     #
     # The given edge argument can be any iterable containing exactly two four-length iterables.
     ###
-    @functools.cache
+    @functools.lru_cache(maxsize=CACHE_MAXSIZE)
     def has_edge(self, edge, unit=False):
         return (_make_unordered_edge(edge) in self.edges(unit=unit))
 
@@ -98,7 +101,7 @@ class IncompleteTesseract:
     # but with the given edge added. If the given edge is already included,
     # the new object will just be identical.
     ###
-    @functools.cache
+    @functools.lru_cache(maxsize=CACHE_MAXSIZE)
     def with_edge(self, edge, unit=False):
         return IncompleteTesseract(_pack_edges(
             self.edges(unit=unit).union({_make_unordered_edge(edge)}),
@@ -110,7 +113,7 @@ class IncompleteTesseract:
     # each vertex being a 4-tuple of coordinates, and e is a frozenset
     # of edges, each edge itself being a frozenset of two vertices.
     ###
-    @functools.cache
+    @functools.lru_cache(maxsize=CACHE_MAXSIZE)
     def graph(self, unit=False):
         e = self.edges(unit=unit)
         v = frozenset(itertools.chain.from_iterable(e))
@@ -119,6 +122,7 @@ class IncompleteTesseract:
     ###
     # str method
     ###
+    @functools.lru_cache(maxsize=CACHE_MAXSIZE)
     def __str__(self):
         return self.ascii_drawing()
     
@@ -126,7 +130,7 @@ class IncompleteTesseract:
     # Return a string which, when printed, renders a diagram of
     # this IncompleteTesseract as an ASCII drawing.
     ###
-    @functools.cache
+    @functools.lru_cache(maxsize=CACHE_MAXSIZE)
     def ascii_drawing(self,
             indent_spaces           = 5,
             gap_width_spaces        = 6,
@@ -282,6 +286,9 @@ class IncompleteTesseract:
 
 # Transform a single edge by the given matrix.
 # This consists of transforming each vertex individually.
+#
+# Use an unbounded cache for this function because there are a
+# relatively small number of edges / matrices combinations.
 @functools.cache
 def _transform_edge(edge, mat):
     assert len(mat) == 4
@@ -296,7 +303,7 @@ def _transform_edge(edge, mat):
 
 # Take a list of edges and return a packed bit representation.
 # This may throw ValueError if any of the included_edges are not valid.
-@functools.cache
+@functools.lru_cache(maxsize=CACHE_MAXSIZE)
 def _pack_edges(included_edges, unit=False):
     all_edges = (ALL_EDGES_ORDERED_UT if unit
             else ALL_EDGES_ORDERED_CT)
