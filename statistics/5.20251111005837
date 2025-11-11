@@ -1,0 +1,14 @@
+n:                                      5
+log_messages_enabled:                   False
+log_diagrams_enabled:                   False
+start_time:                             2025-11-11 00:58:34.947876
+inputs_processed:                       7
+extensions_created:                     78
+uniqueness_checks:                      78
+uniqueness_checks_accepted:             21
+results_written_to_file:                21
+uniqueness_checks_rejected:             57
+end_time:                               2025-11-11 00:58:37.677533
+elapsed_time:                           0:00:02.729657
+average_time_per_input:                 0:00:00.389951
+estimated_time_for_next_run:            0:00:08.188971

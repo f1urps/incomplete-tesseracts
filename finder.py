@@ -5,29 +5,38 @@ import sys
 from datetime import datetime
 
 
-log_messages_enabled = True
+log_messages_enabled = False
 log_diagrams_enabled = False
 
 
-def main(n):
+def main():
 
-    stats = init_stats(n)
+    for n in range(2,32):
+        print(f'\nCalculating for n={n}...')
 
-    # Load previously calculated results with n-1 edges
-    previous = load_results(n-1)
+        stats = init_stats(n)
 
-    # Get all possible extensions with n edges
-    t = generate_extensions(previous, stats)
+        # Load previously calculated results with n-1 edges
+        previous = load_results(n-1)
 
-    # Filter for uniqueness by symmetry
-    t = remove_symmetrical_copies(t, stats)
+        # Get all possible extensions with n edges
+        t = generate_extensions(previous, stats)
 
-    # Write out the results for n
-    write_results(t, n, stats)
+        # Filter for uniqueness by symmetry
+        t = remove_symmetrical_copies(t, stats)
 
-    # Print summary of findings
-    finalize_stats(stats, n)
-    print_final_report(load_results(n), stats, n)
+        if n == 5:
+            t = remove_non_4d(t, stats)
+
+        # Convert each to their minimum representation
+        t = convert_to_minimum(t, stats)
+
+        # Write out the results for n
+        write_results(t, n, stats)
+
+        # Print summary of findings
+        finalize_stats(stats, n)
+        print_final_report(load_results(n), stats, n)
 
 
 
@@ -44,8 +53,8 @@ _, W_EDGES = IncompleteTesseract(0x000ff000).graph(unit=True)
 def load_results(n:int):
     filename = f'results/results_with_{n}_edges'
     with open(filename, 'r') as f:
-        return [IncompleteTesseract(int(line.strip()))
-            for line in f.readlines()]
+        return sorted([IncompleteTesseract(int(line.strip()))
+            for line in f.readlines()])
 
 
 
@@ -126,6 +135,15 @@ def remove_non_4d(tesseracts, stats):
             stats.dimensionality_checks_rejected += 1
 
 
+# Convert each tesseract to its minimum transformation number.
+def convert_to_minimum(tesseracts, stats):
+    for t in tesseracts:
+        log(f'Calculating minimum transformation for #{t.packed}.')
+        stats.minimum_transformation_conversions += 1
+
+        yield min(t.transformations())
+
+
 # Print a log message
 def log(msg, force=False):
     if log_messages_enabled or force:
@@ -193,12 +211,14 @@ def write_stats(stats, n:int):
 
 
 if __name__ == "__main__":
-    try:
-        n = int(sys.argv[1])
-    except Exception as e:
-        print("ERROR: Please give N as argument. (2 <= N <= 32)")
-        exit(1)
+    #try:
+    #    n = int(sys.argv[1])
+    #except Exception as e:
+    #    print("ERROR: Please give N as argument. (2 <= N <= 32)")
+    #    exit(1)
 
-    main(n)
+    #main(n)
+
+    main()
 
 
